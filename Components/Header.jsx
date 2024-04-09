@@ -19,9 +19,9 @@ export default function Header() {
     <View style={styles.container}>
       <View style={{display: 'flex', flexDirection: 'row', gap: 8}}>
       <Image style={styles.pfp} source={{uri:user?.picture}} />
-      <View>
+      <View style={{fontFamily: 'outfit'}}>
         <Text style={{color: colors.WHITE, fontSize: 16}}>Welcome,</Text>
-        <Text style={{color: colors.WHITE, fontSize: 20, fontWeight: 'bold'}}>{user?.given_name}</Text>
+        <Text style={{color: colors.WHITE, fontSize: 20, fontWeight: 'bold', fontFamily: 'outfit-bold'}}>{user?.given_name}</Text>
       </View>
       </View>
       <Ionicons name="notifications" size={24} color={colors.WHITE} />

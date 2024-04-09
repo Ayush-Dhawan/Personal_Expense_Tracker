@@ -7,6 +7,8 @@ import { getCategoriesByEmail } from '../../api-services/categoryAPI'
 import { supabase } from '../../utils/supabase'
 import Header from '../../Components/Header'
 import colors from '../../utils/colors'
+import CirularChartChart from '../../Components/CircularChart'
+
 
 async function getCategoryList(){
   const user = await client.getUserDetails();
@@ -43,6 +45,7 @@ export default  function Home() {
   return (
     <View style={styles.container}>
       <Header />
+      <CirularChartChart />
     </View>
   )
 }
@@ -52,6 +55,6 @@ const styles = StyleSheet.create({
     marginTop: 25,
     padding: 20,
     backgroundColor: colors.PRIMARY,
-    height: 105
+    height: 155
   }
 })
