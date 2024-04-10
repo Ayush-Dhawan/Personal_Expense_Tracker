@@ -1,25 +1,43 @@
-import { View, Text, Button, StyleSheet } from 'react-native'
-import React, { useEffect } from 'react'
+import { View, Text, Button, StyleSheet, ScrollView, RefreshControl } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { getData, storeData } from '../../utils/services'
 import { Link, useRouter } from 'expo-router'
 import {client} from '../../utils/kindeConfig'
-import { getCategoriesByEmail } from '../../api-services/categoryAPI'
-import { supabase } from '../../utils/supabase'
+import { getCategoriesAndItemsByEmail } from '../../api-services/categoryAPI'
 import Header from '../../Components/Header'
 import { AntDesign } from '@expo/vector-icons';
 import colors from '../../utils/colors'
 import CirularChartChart from '../../Components/CircularChart'
+import CategoryList from '../../Components/CategoryList'
 
 
-async function getCategoryList(){
-  const user = await client.getUserDetails();
-  // const {data, error} = await supabase.from('Category').select('*').eq('created_by', user.email)
-  const categories = await getCategoriesByEmail(user.email);
-}
+
 
 export default  function Home() {
+    const [categoryList, setCategoryList] = useState([]);
+    const [loading, setLoading] = useState(false)
 
-  
+    async function getCategoryList(){
+      setLoading(true);
+      const user = await client.getUserDetails();
+      // const {data, error} = await supabase.from('Category').select('*, CategoryItems(*)').eq('created_by', user.email)
+      const categories = await getCategoriesAndItemsByEmail(user?.email);
+
+      setLoading(false);
+
+      if(categories){
+        setCategoryList(categories);
+      return categories;
+      }else{
+        setCategoryList([]);
+        return;
+      }
+    }
+    useEffect(() =>{
+      checkUserAuth();
+      getCategoryList();
+  }, [])
+
     const handleLogout = async () => {
         const loggedOut = await client.logout();
         if (loggedOut) {
@@ -31,10 +49,7 @@ export default  function Home() {
 
     
     const router = useRouter();
-    useEffect(() =>{
-        checkUserAuth();
-        getCategoryList();
-    }, [])
+
     const checkUserAuth = async ()=>{
         const result = await getData("login");
 
@@ -44,13 +59,20 @@ export default  function Home() {
     }
   return (
     <View style={{ position: 'relative' }}>
-    <View style={styles.container}>
-      <Header />
-      <CirularChartChart />
-    </View>
-    <Link href={'/addNewCategory'} style={styles.addButton}>
+          <Link href={'/addNewCategory'} style={styles.addButton}>
       <AntDesign name="pluscircle" size={50} color={colors.PRIMARY} />
     </Link>
+    <ScrollView refreshControl={
+      <RefreshControl onRefresh={() => getCategoryList()} refreshing={loading} />
+    }>
+    <View style={styles.container}>
+      <Header />
+    </View>
+      <View style={{padding: 20, marginTop: -90 }}>
+        <CirularChartChart />
+        <CategoryList categoryList={categoryList} />
+      </View>
+    </ScrollView>
   </View>
   )
 }
@@ -64,7 +86,9 @@ const styles = StyleSheet.create({
   },
   addButton: {
     position: 'absolute',
-    bottom: -560,
-    right: 16
+    bottom: 16,
+    right: 16,
+    elevation: 20,
+    zIndex: 2
   }
 })

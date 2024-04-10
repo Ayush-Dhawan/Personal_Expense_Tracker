@@ -1,9 +1,9 @@
 import { supabase } from "../utils/supabase"
 
-export async function getCategoriesByEmail(email){
+export async function getCategoriesAndItemsByEmail(email){
     let { data: category, error } = await supabase
   .from('Category')
-  .select("*")
+  .select("*, CategoryItems(*)")
   .eq('created_by', email)
 
   if(error){
