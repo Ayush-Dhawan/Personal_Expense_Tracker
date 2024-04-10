@@ -26,3 +26,15 @@ export async function addCategoryAPI(data){
 
   return inserted_category;
 }
+
+export async function getCategoryDetailApi(id){
+    const {data, error} = await supabase.from("Category")
+    .select("*, CategoryItems(*)")
+    .eq('id', id)
+    if(error){
+      console.log(error.message)
+      return;
+    }
+  
+    return data;
+}
