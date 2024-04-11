@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { getCategoryDetailApi } from '../api-services/categoryAPI';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../utils/colors';
@@ -11,6 +11,7 @@ export default function categoryDetails() {
     const [categoryData, setCategoryData] = useState({});
     const [moneySpent, setMoneySpent] = useState(0);
     const [totalPercent, setTotalPercent] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
@@ -23,8 +24,10 @@ export default function categoryDetails() {
     }, [categoryData])
 
     async function getCategoryDetail(categoryId){
+      setLoading(true);
       const data =  await getCategoryDetailApi(categoryId);
       setCategoryData(data[0]);
+      setLoading(false);
     }
 
     function calculateTotalPercentage(){
@@ -37,9 +40,13 @@ export default function categoryDetails() {
       setTotalPercent(finalPerc)
     }
   return (
-    <View style={styles.container}>
+    <View>
+      <AddItem categoryData={categoryData} />
+      <ScrollView refreshControl={
+      <RefreshControl onRefresh={() => getCategoryDetail(categoryId)} refreshing={loading} />
+    } style={styles.container}>
       <View>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.replace("/")}>
             <Ionicons name="arrow-back-circle-sharp" size={44} color={colors.PRIMARY} />
           </TouchableOpacity>
           <View style={{marginTop: 20, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -63,6 +70,21 @@ export default function categoryDetails() {
           </View>
       </View>
       <ItemsList categoryData={categoryData} />
+    </ScrollView>
+    </View>
+  )
+}
+
+function AddItem({categoryData}){
+  return(
+    <View>
+        <Link href={{pathname: '/addNewCatItem',
+        params: {
+          categoryId: categoryData?.id
+        }}}
+         style={addItemStyle.floatingbtn}>
+           <Ionicons name="add-circle" size={54} color={colors.PRIMARY} />
+        </Link>
     </View>
   )
 }
@@ -74,7 +96,7 @@ function ItemsList({categoryData}){
 
       <View>
         {categoryData?.CategoryItems?.length > 0 ? categoryData?.CategoryItems?.map((item, index)=>{
-          return <View key={index}>
+          return <View key={index} >
           <View style={listStyle.itemContainer}>
             <Image source={{uri: item.image}} style={listStyle.image}/>
             <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '70%'}}>
@@ -82,13 +104,21 @@ function ItemsList({categoryData}){
               <Text style={{fontFamily: 'outfit-bold', fontSize: 20}}>₹{item.cost}</Text>
             </View>
           </View>
-          {categoryData?.CategoryItems?.length-1 !== index && <View style={{borderWidth: 0.5, marginTop: 10, borderColor: colors.GRAY}}></View>}
+          {categoryData?.CategoryItems?.length-1 !== index && <View style={{borderWidth: 0.5, marginVertical: 5, borderColor: colors.GRAY}}></View>}
           </View>
         }) : <Text style={listStyle.noItemsText}>No items added yet!</Text>}
       </View>
     </View>
   )
 }
+
+const addItemStyle = StyleSheet.create({
+  floatingbtn: {
+    position: 'absolute',
+    bottom: -785,
+    right: 16
+  }
+})
 
 const listStyle = StyleSheet.create({
   container: {
@@ -101,13 +131,16 @@ const listStyle = StyleSheet.create({
   image: {
     height: 70,
     width: 70,
-    borderRadius: 15
+    borderRadius: 15,
+    borderWidth: 0.5,
+    borderColor: colors.GRAY
   },
   itemContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20
+    gap: 20,
+    backgroundColor: colors.WHITE, borderRadius: 15,
   },
   noItemsText: {
     fontFamily: 'outfit-bold',
