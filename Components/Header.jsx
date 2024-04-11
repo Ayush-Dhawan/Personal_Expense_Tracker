@@ -18,7 +18,7 @@ export default function Header() {
   return (
     <View style={styles.container}>
       <View style={{display: 'flex', flexDirection: 'row', gap: 8}}>
-      <Image style={styles.pfp} source={{uri:user?.picture}} />
+      <Image style={styles.pfp} source={{uri:user?.picture || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"}} />
       <View style={{fontFamily: 'outfit'}}>
         <Text style={{color: colors.WHITE, fontSize: 16}}>Welcome,</Text>
         <Text style={{color: colors.WHITE, fontSize: 20, fontWeight: 'bold', fontFamily: 'outfit-bold'}}>{user?.given_name}</Text>

@@ -38,15 +38,6 @@ export default  function Home() {
       getCategoryList();
   }, [])
 
-    const handleLogout = async () => {
-        const loggedOut = await client.logout();
-        if (loggedOut) {
-            // User was logged out
-            await storeData('login', 'false');
-            router.replace('/login')
-        }
-    };
-
     
     const router = useRouter();
 
@@ -58,7 +49,7 @@ export default  function Home() {
         }
     }
   return (
-    <View style={{ position: 'relative' }}>
+    <View style={{ position: 'relative', minHeight:'100%' }}>
           <Link href={'/addNewCategory'} style={styles.addButton}>
       <AntDesign name="pluscircle" size={50} color={colors.PRIMARY} />
     </Link>
