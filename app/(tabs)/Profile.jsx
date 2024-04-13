@@ -32,7 +32,7 @@ export default function Profile() {
   return (
     <View style={styles.container} >
       <View style={styles.header}>
-          <Image style={styles.image} source={{uri: userInfo?.picture || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"}}></Image>
+          <Image style={styles.image} source={{uri: userInfo?.picture || "https://avatar.iran.liara.run/public"}}></Image>
       </View>
       <View style={styles.subContainer}>
         <Text style={{textAlign: 'center', fontFamily: 'outfit-bold', fontSize: 25}}>{userInfo?.given_name}</Text>
