@@ -38,3 +38,16 @@ export async function getCategoryDetailApi(id){
   
     return data;
 }
+
+export async function deleteCategory(category_id){
+  const {error} = await supabase
+  .from("Category")
+  .delete()
+  .eq("id", category_id);
+
+  if(error){
+    console.log(error.message)
+    return;
+  }
+
+}

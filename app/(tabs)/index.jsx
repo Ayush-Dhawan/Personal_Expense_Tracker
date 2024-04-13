@@ -9,6 +9,7 @@ import { AntDesign } from '@expo/vector-icons';
 import colors from '../../utils/colors'
 import CirularChartChart from '../../Components/CircularChart'
 import CategoryList from '../../Components/CategoryList'
+import { scheduleDeletion } from '../../utils/MonthlyScheduler'
 
 
 
@@ -35,6 +36,7 @@ export default  function Home() {
     }
     useEffect(() =>{
       checkUserAuth();
+      scheduleDeletion();
       getCategoryList();
   }, [])
 
@@ -60,7 +62,7 @@ export default  function Home() {
       <Header />
     </View>
       <View style={{padding: 20, marginTop: -90 }}>
-        <CirularChartChart />
+        <CirularChartChart categoryList={categoryList} />
         <CategoryList categoryList={categoryList} />
       </View>
     </ScrollView>

@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, RefreshControl, Alert, ToastAndroid } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
-import { getCategoryDetailApi } from '../api-services/categoryAPI';
+import { deleteCategory, getCategoryDetailApi } from '../api-services/categoryAPI';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../utils/colors';
 import CategoryList from '../Components/CategoryList';
+import { deleteCategoryItems, deleteItemByID } from '../api-services/categoryItemsAPI';
 
 export default function categoryDetails() {
     const {categoryId} = useLocalSearchParams();
@@ -39,6 +40,28 @@ export default function categoryDetails() {
       const finalPerc = perc > 100 ? 100 : perc;
       setTotalPercent(finalPerc)
     }
+
+     function handleDelete(){
+      Alert.alert("Are you sure you want to delete?", 
+      "This action cannot be undone",
+       [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Yes',
+          style: 'destructive',
+          onPress: async () => {
+             await deleteCategoryItems(categoryId);
+             await deleteCategory(categoryId);
+
+             ToastAndroid.show("Category deleted!", ToastAndroid.SHORT)
+             router.replace('/')
+          }
+        }
+      ])
+    }
   return (
     <View>
       <AddItem categoryData={categoryData} />
@@ -57,7 +80,9 @@ export default function categoryDetails() {
               <Text style={styles.categoryName}>{categoryData?.name}</Text>
               <Text style={styles.categoryItems}>{categoryData?.CategoryItems?.length} Items</Text>
             </View>
-            <Ionicons name="trash-sharp" size={24} color={colors.RED} />
+            <TouchableOpacity onPress={handleDelete}>
+              <Ionicons name="trash-sharp" size={24} color={colors.RED} />
+            </TouchableOpacity>
           </View>
           {/* progress bar  */}
           <View style={styles.amountContainer}>
@@ -90,6 +115,39 @@ function AddItem({categoryData}){
 }
 
 function ItemsList({categoryData}){
+  const {categoryId} = useLocalSearchParams();
+  const [expandItem, setExpandItem] = useState(-1);
+  const router = useRouter();
+
+  function onClickItem(index){
+    setExpandItem(index)
+  }
+
+  function handleDeleteItem(id){
+    Alert.alert("Are you sure you want to delete this item?", 
+    "This action cannot be undone",
+     [
+      {
+        text: 'Cancel',
+        style: 'cancel'
+      },
+      {
+        text: 'Yes',
+        style: 'destructive',
+        onPress: async () => {
+           await deleteItemByID(id)
+
+           ToastAndroid.show("Item deleted!", ToastAndroid.SHORT)
+           router.replace({
+            pathname: '/category-details',
+            params: {
+                categoryId : categoryId
+            }
+        })
+        }
+      }
+    ])
+  }
   return(
     <View style={listStyle.container}>
       <Text style={listStyle.heading}>Item List</Text>
@@ -97,13 +155,19 @@ function ItemsList({categoryData}){
       <View>
         {categoryData?.CategoryItems?.length > 0 ? categoryData?.CategoryItems?.map((item, index)=>{
           return <View key={index} >
-          <View style={listStyle.itemContainer}>
+          <TouchableOpacity style={listStyle.itemContainer} onPress={()=> onClickItem(index)}>
             <Image source={{uri: item.image}} style={listStyle.image}/>
             <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '70%'}}>
               <Text style={{fontFamily: 'outfit', fontSize: 20}}>{item.name}</Text>
-              <Text style={{fontFamily: 'outfit-bold', fontSize: 20}}>₹{item.cost}</Text>
+            <Text style={{fontFamily: 'outfit-bold', fontSize: 20}}>₹{item.cost}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
+          {expandItem === index &&
+          <View style={listStyle.actionItemContainer}>
+            <TouchableOpacity onPress={() => handleDeleteItem(item.id)}>
+              <Ionicons name="trash-sharp" style={{textAlign: 'center'}} size={34} color={colors.RED} />
+            </TouchableOpacity>
+          </View>}
           {categoryData?.CategoryItems?.length-1 !== index && <View style={{borderWidth: 0.5, marginVertical: 5, borderColor: colors.GRAY}}></View>}
           </View>
         }) : <Text style={listStyle.noItemsText}>No items added yet!</Text>}
@@ -116,13 +180,15 @@ const addItemStyle = StyleSheet.create({
   floatingbtn: {
     position: 'absolute',
     bottom: -785,
-    right: 16
+    right: 16,
+    zIndex: 2
   }
 })
 
 const listStyle = StyleSheet.create({
   container: {
-    marginTop: 20
+    marginTop: 20,
+    marginBottom: 10
   },
   heading: {
     fontFamily: 'outfit-bold',
@@ -146,6 +212,9 @@ const listStyle = StyleSheet.create({
     fontFamily: 'outfit-bold',
     fontSize: 25,
     color: colors.GRAY
+  },
+  actionItemContainer: {
+
   }
 })
 

@@ -14,30 +14,50 @@ export default function CategoryList({categoryList}) {
             }
         })
     }
-  return (
-    <View style={styles.container}>
-      <Text style={{fontFamily: 'outfit-bold', fontSize: 25, marginBottom: 10, color: colors.PRIMARY}}>Latest Budget</Text>
-
-      <View>
-      {categoryList?.map((category, index) => {
-            return <TouchableOpacity key={index} onPress={() => onCategoryClick(category)}>
-                        <View style={styles.iconContainer}>
-                            <Text style={[styles.iconText, {backgroundColor: category.color}]}>{category.icon}</Text>
-                            <View style={styles.subContainer}>
-                                <View>
-                                        <Text style={styles.categoryText}>{category.name}</Text>
-                                        <Text style={styles.itemCount}>{category?.CategoryItems.length} Items</Text>
-                                </View>
-                                <View>
-                                        <Text style={styles.totalAmountText}>₹5000</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-        })}
-      </View>
-    </View>
-  )
+    // const calculateTotalCost = (categoryList) =>{
+    //    let totalCost = 0;
+    // //    categoryList?.map(item => {
+    // //     const categoryItems = item.CategoryItems;
+    // //     // totalCost += categoryItems.cost;
+    // //     categoryItems.map(item => totalCost += item.cost)
+    // //     console.log(categoryItems)
+    // //    });
+    // categoryList?.CategoryItems?.forEach(item => {
+    //     totalCost += item.cost;
+    //   });
+    //    return totalCost;
+    // }
+    return (
+        <View style={styles.container}>
+          <Text style={{ fontFamily: 'outfit-bold', fontSize: 25, marginBottom: 10, color: colors.PRIMARY }}>Latest Budget</Text>
+          <View>
+            {categoryList?.map((category, index) => {
+              let totalCost = 0;
+              category?.CategoryItems.forEach(item => {
+                totalCost += item.cost;
+              });
+              
+              return (
+                <TouchableOpacity key={index} onPress={() => onCategoryClick(category)}>
+                  <View style={styles.iconContainer}>
+                    <Text style={[styles.iconText, { backgroundColor: category.color }]}>{category.icon}</Text>
+                    <View style={styles.subContainer}>
+                      <View>
+                        <Text style={styles.categoryText}>{category.name}</Text>
+                        <Text style={styles.itemCount}>{category?.CategoryItems.length} Items</Text>
+                      </View>
+                      <View>
+                        <Text style={styles.totalAmountText}>₹{totalCost}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      );
+      
 }
 
 const styles = StyleSheet.create({

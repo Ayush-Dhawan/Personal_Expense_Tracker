@@ -29,9 +29,12 @@ export default function AddNewCatItem() {
             base64: true
           });
 
-          if(!result.canceled){
+          if(!result.canceled && result){
             setPreviewImage(result.assets[0].uri);
             setImage(result.assets[0].base64);
+          }else{
+            setPreviewImage("https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png");
+            setImage("https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png");
           }
     }
 
@@ -44,7 +47,10 @@ export default function AddNewCatItem() {
         .upload(fileName+'.png', decode(image),{ contentType: 'image/png'})
 
         if(data){
-            const fileUrl = `https://nuwjrrfigxfaxkmulvff.supabase.co/storage/v1/object/public/item-images/${data.path}`;
+            let fileUrl = `https://nuwjrrfigxfaxkmulvff.supabase.co/storage/v1/object/public/item-images/${data.path}`;
+            if(image == "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"){
+                fileUrl = "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
+            }
             const dataAdded = addCategoryItem({name, cost: price, note, category_id: categoryId, image: fileUrl});
             if(dataAdded){
                 ToastAndroid.show("Item added succesfully!", ToastAndroid.SHORT);
