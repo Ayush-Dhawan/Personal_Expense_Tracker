@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, ToastAndroid } from 'react-native'
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, ToastAndroid, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import colors from '../utils/colors'
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
@@ -15,6 +15,7 @@ export default function AddNewCatItem() {
     const [name, setName] = useState("");
     const [price, setPrice] = useState(0);
     const [note, setNote] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const {categoryId} = useLocalSearchParams();
     const router = useRouter();
@@ -35,6 +36,7 @@ export default function AddNewCatItem() {
     }
 
     async function handleAddItem(){
+        setIsLoading(true);
         const fileName = Date.now() + (Math.random() * 10);
         const {data, error} = await supabase
         .storage
@@ -52,6 +54,7 @@ export default function AddNewCatItem() {
                 setPreviewImage("https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png");
                 setPrice("");
 
+                setIsLoading(false);
                 router.replace({
                     pathname: '/category-details',
                     params: {
@@ -85,8 +88,9 @@ export default function AddNewCatItem() {
                             <Ionicons name="clipboard" size={24} color={colors.GRAY} />
                             <TextInput style={{fontSize: 17, width: '100%'}} placeholder='Note' numberOfLines={5} onChangeText={(value) => setNote(value)} />
                         </View>
-                        <TouchableOpacity onPress={()=>handleAddItem()} style={styles.button} disabled={!name || !price}>
-                            <Text style={{textAlign: 'center', fontFamily:'outfit-bold', color: colors.WHITE}}>Add</Text>
+                        <TouchableOpacity onPress={()=>handleAddItem()} style={styles.button} disabled={!name || !price || isLoading}>
+                            {isLoading ? <ActivityIndicator color={colors.WHITE} /> :
+                            <Text style={{textAlign: 'center', fontFamily:'outfit-bold', color: colors.WHITE}}>Add</Text>}
                         </TouchableOpacity>
                     </View>
             </ScrollView>
