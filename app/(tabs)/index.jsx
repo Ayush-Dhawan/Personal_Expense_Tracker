@@ -7,9 +7,10 @@ import { getCategoriesAndItemsByEmail } from '../../api-services/categoryAPI'
 import Header from '../../Components/Header'
 import { AntDesign } from '@expo/vector-icons';
 import colors from '../../utils/colors'
-import CirularChartChart from '../../Components/CircularChart'
+import CirularChart from '../../Components/CircularChart'
 import CategoryList from '../../Components/CategoryList'
-import { scheduleDeletion } from '../../utils/MonthlyScheduler'
+import { resetAllSpends, scheduleDeletion } from '../../utils/MonthlyScheduler'
+
 
 
 
@@ -34,10 +35,15 @@ export default  function Home() {
         return;
       }
     }
+
     useEffect(() =>{
+      async function reset(){
+       await resetAllSpends();
+      }
       checkUserAuth();
       scheduleDeletion();
       getCategoryList();
+      reset();
   }, [])
 
     
@@ -62,7 +68,7 @@ export default  function Home() {
       <Header />
     </View>
       <View style={{padding: 20, marginTop: -90 }}>
-        <CirularChartChart categoryList={categoryList} />
+        <CirularChart categoryList={categoryList} />
         <CategoryList categoryList={categoryList} />
       </View>
     </ScrollView>

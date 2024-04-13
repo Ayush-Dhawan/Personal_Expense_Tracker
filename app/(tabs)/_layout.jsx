@@ -21,7 +21,7 @@ export default function _layout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: 'History',
+          title: 'Archive',
           tabBarIcon: ({ color }) => <FontAwesome size={25} name="history" color={color} />,
         }}
       />

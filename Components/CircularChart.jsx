@@ -3,7 +3,12 @@ import React, { useEffect, useState } from 'react'
 import colors from '../utils/colors';
 import {MaterialCommunityIcons} from '@expo/vector-icons'
 
+
 import PieChart from 'react-native-pie-chart'
+import { client } from '../utils/kindeConfig';
+import { addUserEmailToArchive, checkUserExistsInArchive } from '../api-services/spendArchive';
+import { updateSpendsArchive } from '../utils/MonthlyScheduler';
+
 
 export default function CircularChart({categoryList}) {
     const widthAndHeight = 150;
@@ -12,6 +17,25 @@ export default function CircularChart({categoryList}) {
     const [totalEstimate, setTotalEstimate] = useState(0);
 
     const sortedCategories = categoryList.sort((a, b) => b.assigned_budget - a.assigned_budget)
+
+    async function handleArchive(){
+      try {
+        const user = await client.getUserDetails();
+        let archiveExists;
+        if(user) archiveExists = await checkUserExistsInArchive(user?.email);
+        
+        if(!archiveExists) await addUserEmailToArchive(user?.email)
+    
+      if(archiveExists) await updateSpendsArchive(user?.email, totalEstimate)
+        
+    } catch (error) {
+        console.error('Error in handleArchive:', error.message);
+    }
+    }
+    
+    useEffect(() => {
+      handleArchive();
+    }, [totalEstimate])
 
     function updateCircularChart() {
       setValues([1]);
